@@ -1,0 +1,71 @@
+# 📦 1. Install Required Libraries (uncomment if needed)
+# !pip install pandas matplotlib seaborn wordcloud textblob
+
+# 📚 2. Import Libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from textblob import TextBlob
+from wordcloud import WordCloud
+from datetime import datetime, timedelta
+import random
+
+# 🔄 3. Simulate Chat Data
+np.random.seed(42)
+users = ['alice', 'bob', 'charlie', 'dave']
+messages = ['Hello there!', 'What’s up?', 'How are you?', 'This is great!',
+            'LOL', 'I’m busy.', 'Can we talk later?', 'Haha!', 'Sure.', 'Sounds good!']
+
+data = []
+for _ in range(500):
+    data.append({
+        'timestamp': datetime.now() - timedelta(minutes=random.randint(0, 10000)),
+        'user': random.choice(users),
+        'message': random.choice(messages)
+    })
+
+df = pd.DataFrame(data)
+df['timestamp'] = pd.to_datetime(df['timestamp'])
+df['hour'] = df['timestamp'].dt.hour
+df['date'] = df['timestamp'].dt.date
+
+# 👁️ 4. Preview Dataset
+print("First 5 rows of the dataset:")
+display(df.head())
+
+# 📊 5. Messages per User
+user_counts = df['user'].value_counts()
+user_counts.plot(kind='bar', title='Messages per User', color='skyblue')
+plt.xlabel("User")
+plt.ylabel("Messages")
+plt.tight_layout()
+plt.show()
+
+# ⏰ 6. Messages by Hour of Day
+hour_counts = df['hour'].value_counts().sort_index()
+hour_counts.plot(kind='bar', title='Messages by Hour of Day', color='coral')
+plt.xlabel("Hour of Day")
+plt.ylabel("Messages")
+plt.tight_layout()
+plt.show()
+
+# 😄 7. Sentiment Analysis
+df['sentiment'] = df['message'].apply(lambda text: TextBlob(text).sentiment.polarity)
+
+# Sentiment distribution plot
+sns.histplot(df['sentiment'], kde=True, bins=20, color='purple')
+plt.title("Sentiment Distribution")
+plt.xlabel("Sentiment Polarity")
+plt.tight_layout()
+plt.show()
+
+# ☁️ 8. Word Cloud of Messages
+text = ' '.join(df['message'])
+wordcloud = WordCloud(background_color='white', width=800, height=400).generate(text)
+
+plt.figure(figsize=(10, 5))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis('off')
+plt.title("Most Frequent Words")
+plt.show()
